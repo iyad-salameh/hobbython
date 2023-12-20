@@ -36,8 +36,9 @@ def search_excel(keyword, workbooks):
             sheet = workbook[sheet_name]
             for row in sheet.iter_rows(values_only=True):
                 row_lower = [str(cell).lower() if cell is not None else "" for cell in row]
-                if keyword_lower in row_lower:
-                    results.append((file, sheet_name, row[:MAX_COLUMN_DISPLAY]))
+                for cell in row_lower:
+                    if keyword_lower in cell:
+                        results.append((file, sheet_name, row[:MAX_COLUMN_DISPLAY]))
     return results
 
 def adjust_column_widths(tree, font):
