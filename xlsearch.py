@@ -15,7 +15,7 @@ def get_column_letter(col_num):
 
 def find_excel_files():
     """Finds all Excel files in the current directory."""
-    return [f for f in os.listdir('.') if f.endswith('.xlsx')]
+    return [f for f in os.listdir('.') if f.lower().endswith('.xlsx')]
 
 def load_workbooks():
     """Loads all workbooks and stores them in a dictionary."""
