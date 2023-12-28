@@ -1,16 +1,104 @@
-This Python script is a graphical application designed to search for a specified keyword across multiple Excel files within the current directory. It presents a user interface (UI) where users can input a search term, which the program then uses to scan all worksheets in each Excel file for that term. If matches are found, the script displays the file name, sheet name, and the row contents in a table format within the UI.
+# Hobbytron
 
-requirements to run the script:
+This repository is a monorepo that contains python hobby projects.
 
-1. Python: A Python interpreter must be installed on the system where the script will run.
+## Setup
 
-2. openpyxl: The openpyxl package, a Python library used to read and write Excel .xlsx/.xlsm files, must be installed.
+This repository leverages [Poetry](https://python-poetry.org/) for efficient dependency management. To ensure a smooth setup, please ensure Poetry is installed on your system. You can find the installation guide [here](https://python-poetry.org/docs/#installing-with-pipx).
 
-3. Tkinter: The tkinter library, which is typically included with the standard Python installation, is used for creating the UI. It must be present and functioning on the system.
+## Key Concepts
 
-4. Excel Files: There must be .xlsx files in the same directory as the script for it to search through.
+- Dependencies are managed using a `pyproject.toml` file in each directory.
+- Common code is packaged in the `shared` directory and referenced in each project.
+- Common code is referenced using relative paths, and it's not packaged as a wheel.
+- Development environment setup and deployment image building processes are managed using a Makefile and a Dockerfile.
+- Local package dependencies are handled without the use of scripts as much as possible. Instead, those processes are described in the Makefile and Dockerfile.
 
-5. Operating System: The script is intended to run on a Windows system, as the UI and file handling are created with Windows conventions in mind. However, tkinter and openpyxl are cross-platform, so the script could potentially be run on other operating systems with little to no modification.
 
-To execute the script, you'd typically navigate to its directory in a command prompt or terminal and run python xlsearch.py
-The application window will then open, allowing the user to interact with the application as intended.
+## Directory Structure
+
+Here's a breakdown of the top-level items in our directory structure:
+
+- `projects`: This directory houses each individual project. 
+- `shared`: This is where the common code shared across multiple projects is located.
+- `pyproject.toml`: This is the root configuration file where development tools like linters and formatters such as Flake8 and Black are specified.
+
+The structure is as follows:
+
+```
+python-monorepo
+├── .flake8
+├── README.md
+├── poetry.lock
+├── pyproject.toml
+├── projects
+│   ├── project-a
+│   │   ├── .devcontainer
+│   │   │   ├── Dockerfile
+│   │   │   └── devcontainer.json
+│   │   ├── Dockerfile
+│   │   ├── Makefile
+│   │   ├── poetry.lock
+│   │   ├── pyproject.toml
+│   │   ├── run.py
+│   │   ├── src
+│   │   │   ├── __init__.py
+│   │   │   └── pipeline.py
+│   │   └── tests
+│   │       ├── __init__.py
+│   │       └── test_pipeline.py
+│   └── project-b
+│       ├── src
+│       │   └── __init__.py
+│       └── tests
+│           └── __init__.py
+└── shared
+    ├── pkg1
+    │   ├── __pycache__
+    │   ├── pkg1
+    │   │   ├── __init__.py
+    │   │   └── base_pipeline.py
+    │   ├── poetry.lock
+    │   └── pyproject.toml
+    └── pkg2
+        ├── pkg2
+        │   ├── __init__.py
+        │   └── calc.py
+        ├── poetry.lock
+        └── pyproject.toml
+```
+
+## Adding Local Packages
+
+To add local packages to your project, add them to the `pyproject.toml` file:
+
+```bash
+cd projects/project-xxx
+poetry add ../../shared/pkg-yyy/
+```
+
+Add the copied shared package to the Makefile:
+
+```bash
+# Copy the shared package written in pyproject.toml
+cp -r ../../shared/pkg-yyy $(TMP_DIR)/pkg-yyy
+```
+
+And also add the package to the Dockerfile:
+
+```bash
+# Copy the shared package written in pyproject.toml
+COPY ./pkg-yyy/ /shared/pkg-yyy/
+```
+
+## How to Use
+
+### Development
+
+For setting up a development environment, navigate to the desired project directory and run `poetry install`.
+
+```bash
+cd projects/project-xxx
+poetry install
+poetry run python main_python_file.py
+```
