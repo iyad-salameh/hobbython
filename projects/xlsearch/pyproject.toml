@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "xlsearch"
+version = "0.1.0"
+description = "Excel keyword lookup"
+authors = ["Iyad Salameh"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openpyxl = "^3.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
