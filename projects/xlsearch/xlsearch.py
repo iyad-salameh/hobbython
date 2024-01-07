@@ -95,4 +95,18 @@ def on_search():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred during search: {e}")
 
+# Create a context menu for copying
+context_menu = tk.Menu(root, tearoff=0)
+context_menu.add_command(label="Copy to Clipboard", command=lambda: copy_to_clipboard(None))
+
+# Function to display the context menu
+def on_right_click(event):
+    try:
+        context_menu.tk_popup(event.x_root, event.y_root)
+    finally:
+        context_menu.grab_release()
+
+# Bind the right-click event
+tree.bind("<Button-3>", on_right_click)
+
 root.mainloop()
