@@ -1,4 +1,4 @@
-# Hobbytron
+# Hobbython
 
 This repository is a monorepo that contains python hobby projects.
 
