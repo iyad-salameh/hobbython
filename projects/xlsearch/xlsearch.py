@@ -4,6 +4,8 @@ from tkinter import ttk
 from tkinter import messagebox
 import tkinter.font as tkFont
 import os
+import time
+
 
 def get_column_letter(col_num):
     """Converts a column number (e.g., 1, 2, 3, ...) into a column letter (e.g., A, B, C, ...)."""
@@ -41,6 +43,7 @@ def search_excel(keyword, workbooks):
                         results.append((file, sheet_name, row[:MAX_COLUMN_DISPLAY]))
     return results
 
+#adjust the column widths according to cell entry or something..
 def adjust_column_widths(tree, font):
     """Adjusts the column widths based on the data."""
     for col in tree["columns"]:
@@ -95,8 +98,46 @@ def on_search():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred during search: {e}")
 
-# Create a context menu for copying
+# Function to copy the selected row to the clipboard
+def copy_to_clipboard(event):
+    selected_item = tree.focus()  # Get the selected item
+    if selected_item:
+        row_data = tree.item(selected_item, 'values')
+        row_text = '\t'.join(map(str, row_data))  # Convert tuple to tab-separated string
+        root.clipboard_clear()
+        root.clipboard_append(row_text)
+        
+# Function to show file properties in a popup window
+def show_properties():
+    selected_item = tree.focus()  # Get the selected item
+    if selected_item:
+        file_name = tree.item(selected_item, 'values')[0]  # Assuming first value is the file name
+        properties = get_file_properties(file_name)
+
+        # Create a popup window
+        popup = tk.Toplevel()
+        popup.title("File Properties")
+        for key, value in properties.items():
+            ttk.Label(popup, text=f"{key}: {value}").pack()
+        
+#function to get file properties
+def get_file_properties(filepath):
+    properties = {
+        'Path': filepath,
+        'Size': f"{os.path.getsize(filepath)} bytes",
+        'Created': time.ctime(os.path.getctime(filepath)),
+        'Modified': time.ctime(os.path.getmtime(filepath))
+    }
+    try:
+        workbook = openpyxl.load_workbook(filepath, read_only=True, data_only=True)
+        properties['Author'] = workbook.properties.author or "Unknown"
+    except Exception:
+        properties['Author'] = "Unknown"
+    return properties
+
+# Create a context menu for copying and properties
 context_menu = tk.Menu(root, tearoff=0)
+context_menu.add_command(label="Properties", command=show_properties)
 context_menu.add_command(label="Copy to Clipboard", command=lambda: copy_to_clipboard(None))
 
 # Function to display the context menu
@@ -108,5 +149,21 @@ def on_right_click(event):
 
 # Bind the right-click event
 tree.bind("<Button-3>", on_right_click)
+
+# Bind Enter key to search
+search_entry.bind('<Return>', lambda event: on_search())
+def on_search(event=None):
+    keyword = search_entry.get().strip()
+    if not keyword:
+        messagebox.showinfo("Search", "Please enter a keyword to search.")
+        return
+    try:
+        results = search_excel(keyword, loaded_workbooks)
+        tree.delete(*tree.get_children())
+        for file, sheet, row in results:
+            tree.insert('', tk.END, values=(file, sheet) + tuple(row))
+        adjust_column_widths(tree, font)
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred during search: {e}")
 
 root.mainloop()
